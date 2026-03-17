@@ -1,0 +1,10 @@
+services:
+  user_db:
+    image: postgres-16-alpine
+    environment:
+      - name=value
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
