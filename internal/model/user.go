@@ -27,6 +27,4 @@ type User struct {
 	// DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
-type UserResponse struct {
-	User
-}
+type UserResponse User
