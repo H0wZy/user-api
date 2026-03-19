@@ -3,10 +3,11 @@ package types
 type Gender string
 
 const (
-	Masculino Gender = "Masculino"
-	Feminino  Gender = "Feminino"
+	Male         Gender = "Masculino"
+	Female       Gender = "Feminino"
+	NotSpecified Gender = "Não especificado"
 )
 
 func GetValidGender() []Gender {
-	return []Gender{Masculino, Feminino}
+	return []Gender{Male, Female, NotSpecified}
 }
