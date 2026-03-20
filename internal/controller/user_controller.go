@@ -19,18 +19,26 @@ func NewUserController(service service.UserService) *UserController {
 }
 
 func (ctrl *UserController) Create(ctx *gin.Context) {
-	var user model.User
 	var request CreateUserRequest
 
-	if err := ctx.ShouldBindJSON(&user); err != nil {
+	if err := ctx.ShouldBindJSON(&request); err != nil {
 		sendErrorResponse(ctx, "Create", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	request.ValidateGender()
+	user := model.User{
+		Username:  request.Username,
+		Email:     request.Email,
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		Password:  request.Password,
+		Phone:     request.Phone,
+		Gender:    request.Gender,
+		BirthDate: request.BirthDate,
+	}
 
 	if err := ctrl.service.Create(ctx.Request.Context(), &user); err != nil {
-		sendErrorResponse(ctx, "Create", http.StatusBadRequest, err.Error())
+		sendErrorResponse(ctx, "Create", http.StatusInternalServerError, err.Error())
 		return
 	}
 
