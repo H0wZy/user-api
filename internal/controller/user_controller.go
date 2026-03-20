@@ -47,3 +47,18 @@ func (ctrl *UserController) Create(ctx *gin.Context) {
 
 	sendSuccessResponse(ctx, "Create", http.StatusCreated, user)
 }
+
+func (ctrl *UserController) GetByID(ctx *gin.Context, id uint) {
+	userId := model.User{
+
+		// TODO
+		// gorm.Model{ID}: id,
+	}
+
+	if err := ctrl.service.GetByID(ctx.Request.Context(), &user); err != nil {
+		sendErrorResponse(ctx, "GetByID", http.StatusOK, err.Error())
+		return
+	}
+
+	sendSuccessResponse(ctx, "GetByID", http.StatusOK, userId)
+}
