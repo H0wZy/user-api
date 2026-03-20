@@ -3,11 +3,9 @@ package controller
 import (
 	"net/http"
 
-	"github.com/H0wZy/user-api/internal/config"
 	"github.com/H0wZy/user-api/internal/model"
 	"github.com/H0wZy/user-api/internal/service"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type UserController struct {
@@ -22,6 +20,11 @@ func (ctrl *UserController) Create(ctx *gin.Context) {
 	var request CreateUserRequest
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
+		sendErrorResponse(ctx, "Create", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := request.ValidateGender(); err != nil {
 		sendErrorResponse(ctx, "Create", http.StatusBadRequest, err.Error())
 		return
 	}
@@ -42,22 +45,5 @@ func (ctrl *UserController) Create(ctx *gin.Context) {
 		return
 	}
 
-	sendSuccessResponse(ctx, "Create", user)
-
-}
-
-var (
-	logger *config.Logger
-	db     *gorm.DB
-)
-
-func Initialize_Controller() {
-	logger = config.GetLogger("controller")
-	db = config.GetSQLite()
-}
-
-func CreateUser(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
-		"msg": "ok",
-	})
+	sendSuccessResponse(ctx, "Create", http.StatusCreated, user)
 }

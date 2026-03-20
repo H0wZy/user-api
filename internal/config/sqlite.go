@@ -10,8 +10,8 @@ import (
 
 func InitSQLite() (*gorm.DB, error) {
 	logger := GetLogger("sqlite")
-	dbPath := "./db"
-	dbFullPath := dbPath + "/main.db"
+	dbPath := "../../internal/db"
+	dbFullPath := dbPath + "/user.db"
 
 	_, err := os.Stat(dbPath)
 
@@ -55,5 +55,6 @@ func InitSQLite() (*gorm.DB, error) {
 		return nil, err
 	}
 
+	logger.Infof("migration concluída com sucesso!")
 	return db, nil
 }

@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/H0wZy/user-api/internal/model"
 	"github.com/H0wZy/user-api/internal/repository"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
@@ -21,6 +23,20 @@ type userService struct {
 }
 
 func (s *userService) Create(ctx context.Context, user *model.User) error {
+	existingEmail, _ := s.repo.GetByEmail(ctx, user.Email)
+
+	if existingEmail != nil {
+		return errors.New("E-mail já cadastrado")
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+
+	if err != nil {
+		return err
+	}
+
+	user.Password = string(hash)
+
 	return s.repo.Create(ctx, user)
 }
 
