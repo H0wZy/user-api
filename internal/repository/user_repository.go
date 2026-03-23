@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/H0wZy/user-api/internal/model"
+	"github.com/H0wZy/user-api/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -64,5 +65,15 @@ func (r *userRepository) Update(ctx context.Context, user *model.User) error {
 }
 
 func (r *userRepository) Delete(ctx context.Context, id uint) error {
-	return r.db.WithContext(ctx).Delete(&model.User{}, id).Error
+	result := r.db.WithContext(ctx).Delete(&model.User{}, id)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return utils.ErrUserNotFound
+	}
+
+	return nil
 }

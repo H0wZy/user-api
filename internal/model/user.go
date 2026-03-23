@@ -22,9 +22,4 @@ type User struct {
 	LastLoginAt  *time.Time     `json:"last_login_at,omitempty"`
 	LastLogoutAt *time.Time     `json:"last_logout_at,omitempty"`
 	IsUserActive bool           `gorm:"default:true" json:"is_user_active"`
-	// CreatedAt    time.Time      `json:"created_at"`
-	// UpdatedAt    time.Time      `json:"updated_at"`
-	// DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
 }
-
-type UserResponse User

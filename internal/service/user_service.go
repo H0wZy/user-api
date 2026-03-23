@@ -41,12 +41,6 @@ func (s *userService) Create(ctx context.Context, user *model.User) error {
 }
 
 func (s *userService) Delete(ctx context.Context, id uint) error {
-	_, err := s.repo.GetByID(ctx, id)
-
-	if err != nil {
-		return err
-	}
-
 	return s.repo.Delete(ctx, id)
 }
 
@@ -61,7 +55,13 @@ func (s *userService) GetByID(ctx context.Context, id uint) (*model.User, error)
 }
 
 func (s *userService) List(ctx context.Context) ([]model.User, error) {
-	return s.repo.List(ctx)
+	users, err := s.repo.List(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (s *userService) Update(ctx context.Context, id uint, input *model.User) (*model.User, error) {

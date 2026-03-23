@@ -1,10 +1,13 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/H0wZy/user-api/internal/model"
 	"github.com/H0wZy/user-api/internal/service"
+	"github.com/H0wZy/user-api/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -48,17 +51,68 @@ func (ctrl *UserController) Create(ctx *gin.Context) {
 	sendSuccessResponse(ctx, "Create", http.StatusCreated, user)
 }
 
-func (ctrl *UserController) GetByID(ctx *gin.Context, id uint) {
-	userId := model.User{
+func (ctrl *UserController) GetByID(ctx *gin.Context) {
+	id := ctx.Query("id")
 
-		// TODO
-		// gorm.Model{ID}: id,
+	if id == "" {
+		sendErrorResponse(ctx, "GetByID", http.StatusBadRequest, "id na query param é obrigatório")
 	}
 
-	if err := ctrl.service.GetByID(ctx.Request.Context(), &user); err != nil {
-		sendErrorResponse(ctx, "GetByID", http.StatusOK, err.Error())
+	id64, err := strconv.ParseUint(id, 10, 32)
+
+	if err != nil {
+		sendErrorResponse(ctx, "GetByID", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	sendSuccessResponse(ctx, "GetByID", http.StatusOK, userId)
+	user, err := ctrl.service.GetByID(ctx.Request.Context(), uint(id64))
+
+	if err != nil {
+		sendErrorResponse(ctx, "GetByID", http.StatusNotFound, err.Error())
+		return
+	}
+
+	sendSuccessResponse(ctx, "GetByID", http.StatusOK, user)
+}
+
+func (ctrl *UserController) List(ctx *gin.Context) {
+	users, err := ctrl.service.List(ctx.Request.Context())
+
+	if err != nil {
+		sendErrorResponse(ctx, "List", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	sendSuccessResponse(ctx, "List", http.StatusOK, users)
+
+}
+
+func (ctrl *UserController) Delete(ctx *gin.Context) {
+	id := ctx.Query("id")
+
+	if id == "" {
+		sendErrorResponse(ctx, "Delete", http.StatusBadRequest, "id na query param é obrigatório")
+		return
+	}
+
+	id64, err := strconv.ParseUint(id, 10, 32)
+
+	if err != nil {
+		sendErrorResponse(ctx, "Delete", http.StatusBadRequest, "id inválido")
+		return
+	}
+
+	if err := ctrl.service.Delete(ctx.Request.Context(), uint(id64)); err != nil {
+		if errors.Is(err, utils.ErrUserNotFound) {
+			sendErrorResponse(ctx, "Delete", http.StatusNotFound, "usuário não encontrado")
+			return
+		}
+		sendErrorResponse(ctx, "Delete", http.StatusInternalServerError, "erro ao deletar usuário")
+		return
+	}
+
+	sendSuccessResponse(ctx, "Delete", http.StatusOK, gin.H{
+		"deleted_id": uint(id64),
+	})
+
 }
