@@ -72,7 +72,7 @@ func (r *userRepository) Delete(ctx context.Context, id uint) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return utils.ErrUserNotFound
+		return utils.UserNotFound
 	}
 
 	return nil

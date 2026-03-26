@@ -2,4 +2,4 @@ package utils
 
 import "errors"
 
-var ErrUserNotFound = errors.New("usuário não encontrado")
+var UserNotFound = errors.New("usuário não encontrado")

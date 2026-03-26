@@ -68,7 +68,7 @@ func (ctrl *UserController) GetByID(ctx *gin.Context) {
 	user, err := ctrl.service.GetByID(ctx.Request.Context(), uint(id64))
 
 	if err != nil {
-		sendErrorResponse(ctx, "GetByID", http.StatusNotFound, err.Error())
+		sendErrorResponse(ctx, "GetByID", http.StatusNotFound, utils.UserNotFound.Error())
 		return
 	}
 
@@ -103,7 +103,7 @@ func (ctrl *UserController) Delete(ctx *gin.Context) {
 	}
 
 	if err := ctrl.service.Delete(ctx.Request.Context(), uint(id64)); err != nil {
-		if errors.Is(err, utils.ErrUserNotFound) {
+		if errors.Is(err, utils.UserNotFound) {
 			sendErrorResponse(ctx, "Delete", http.StatusNotFound, "usuário não encontrado")
 			return
 		}
