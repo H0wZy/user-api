@@ -7,7 +7,9 @@ import (
 
 	"github.com/H0wZy/user-api/internal/model"
 	"github.com/H0wZy/user-api/internal/repository"
+	"github.com/H0wZy/user-api/internal/utils"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -48,6 +50,9 @@ func (s *userService) GetByID(ctx context.Context, id uint) (*model.User, error)
 	user, err := s.repo.GetByID(ctx, id)
 
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, utils.UserNotFound
+		}
 		return nil, err
 	}
 

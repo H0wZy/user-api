@@ -52,27 +52,28 @@ func (ctrl *UserController) Create(ctx *gin.Context) {
 }
 
 func (ctrl *UserController) GetByID(ctx *gin.Context) {
-	id := ctx.Query("id")
+	const opr = "GetByID"
 
-	if id == "" {
-		sendErrorResponse(ctx, "GetByID", http.StatusBadRequest, "id na query param é obrigatório")
-	}
-
-	id64, err := strconv.ParseUint(id, 10, 32)
+	id, err := utils.ParseUintParam(ctx, "id")
 
 	if err != nil {
-		sendErrorResponse(ctx, "GetByID", http.StatusBadRequest, err.Error())
+		sendErrorResponse(ctx, opr, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	user, err := ctrl.service.GetByID(ctx.Request.Context(), uint(id64))
+	user, err := ctrl.service.GetByID(ctx.Request.Context(), id)
 
 	if err != nil {
-		sendErrorResponse(ctx, "GetByID", http.StatusNotFound, utils.UserNotFound.Error())
+		switch {
+		case errors.Is(err, utils.UserNotFound):
+			sendErrorResponse(ctx, opr, http.StatusNotFound, utils.UserNotFound.Error())
+		default:
+			sendErrorResponse(ctx, opr, http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
-	sendSuccessResponse(ctx, "GetByID", http.StatusOK, user)
+	sendSuccessResponse(ctx, opr, http.StatusOK, user)
 }
 
 func (ctrl *UserController) List(ctx *gin.Context) {
