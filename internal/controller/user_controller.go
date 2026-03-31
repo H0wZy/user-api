@@ -44,7 +44,12 @@ func (ctrl *UserController) Create(ctx *gin.Context) {
 	}
 
 	if err := ctrl.service.Create(ctx.Request.Context(), &user); err != nil {
-		sendErrorResponse(ctx, "Create", http.StatusInternalServerError, err.Error())
+		switch {
+		case errors.Is(err, utils.EmailAlreadyExists), errors.Is(err, utils.UsernameAlreadyExists):
+			sendErrorResponse(ctx, "Create", http.StatusConflict, err.Error())
+		default:
+			sendErrorResponse(ctx, "Create", http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 

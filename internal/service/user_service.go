@@ -25,21 +25,42 @@ type userService struct {
 }
 
 func (s *userService) Create(ctx context.Context, user *model.User) error {
-	existingEmail, _ := s.repo.GetByEmail(ctx, user.Email)
+	existingEmail, errEmail := s.repo.GetByEmail(ctx, user.Email)
+	existingUsername, errUsername := s.repo.GetByUsername(ctx, user.Username)
+
+	if errEmail != nil && !errors.Is(errEmail, utils.EmailAlreadyExists) && !errors.Is(errEmail, gorm.ErrRecordNotFound) {
+		return errEmail
+	}
+	if errUsername != nil && !errors.Is(errUsername, utils.UsernameAlreadyExists) && !errors.Is(errUsername, gorm.ErrRecordNotFound) {
+		return errUsername
+	}
 
 	if existingEmail != nil {
-		return errors.New("E-mail já cadastrado")
+		return utils.EmailAlreadyExists
+	}
+
+	if existingUsername != nil {
+		return utils.UsernameAlreadyExists
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-
 	if err != nil {
 		return err
 	}
 
 	user.Password = string(hash)
 
-	return s.repo.Create(ctx, user)
+	if err := s.repo.Create(ctx, user); err != nil {
+		if strings.Contains(err.Error(), "username") {
+			return utils.UsernameAlreadyExists
+		}
+		if strings.Contains(err.Error(), "email") {
+			return utils.EmailAlreadyExists
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (s *userService) Delete(ctx context.Context, id uint) error {

@@ -13,12 +13,23 @@ type UserRepository interface {
 	Update(ctx context.Context, user *model.User) error
 	GetByID(ctx context.Context, id uint) (*model.User, error)
 	GetByEmail(ctx context.Context, email string) (*model.User, error)
+	GetByUsername(ctx context.Context, username string) (*model.User, error)
 	List(ctx context.Context) ([]model.User, error)
 	Delete(ctx context.Context, id uint) error
 }
 
 type userRepository struct {
 	db *gorm.DB
+}
+
+func (r *userRepository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+	var user model.User
+
+	if err := r.db.WithContext(ctx).Where("username = ?", username).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 // INSTANCIA
@@ -53,7 +64,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*model.U
 func (r *userRepository) List(ctx context.Context) ([]model.User, error) {
 	var users []model.User
 
-	if err := r.db.WithContext(ctx).Find(&users).Error; err != nil {
+	if err := r.db.WithContext(ctx).Unscoped().Find(&users).Error; err != nil {
 		return nil, err
 	}
 
@@ -65,7 +76,7 @@ func (r *userRepository) Update(ctx context.Context, user *model.User) error {
 }
 
 func (r *userRepository) Delete(ctx context.Context, id uint) error {
-	result := r.db.WithContext(ctx).Delete(&model.User{}, id)
+	result := r.db.WithContext(ctx).Unscoped().Delete(&model.User{}, id)
 
 	if result.Error != nil {
 		return result.Error

@@ -1,0 +1,27 @@
+@BASE_URL = {{HOST}}:{{PORT}}{{BASE_PATH}}
+
+### Create a new user
+POST {{BASE_URL}}/user HTTP/1.1
+content-type: application/json
+
+{
+  "username": "user5",
+  "email": "user5@example.com",
+  "first_name": "Teste",
+  "last_name": "User2",
+  "password": "Teste@123.",
+  "phone": "43999999999",
+  "gender": ["male"]
+}
+
+### Get user by ID
+GET {{BASE_URL}}/user?id=2 HTTP/1.1
+content-type: application/json
+
+### List all users
+GET {{BASE_URL}}/users HTTP/1.1
+content-type: application/json
+
+### delete user by ID
+DELETE {{BASE_URL}}/user?id=1 HTTP/1.1
+content-type: application/json
