@@ -59,9 +59,19 @@ func (ctrl *UserController) Create(ctx *gin.Context) {
 func (ctrl *UserController) Update(ctx *gin.Context) {
 	const opr = "Update"
 
-	var request UpdateUserRequest
+	id, err := utils.ParseUintParam(ctx, "id")
+	if err != nil {
+		sendErrorResponse(ctx, opr, http.StatusBadRequest, err.Error())
+		return
+	}
 
+	var request UpdateUserRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
+		sendErrorResponse(ctx, opr, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := request.ValidateGender(); err != nil {
 		sendErrorResponse(ctx, opr, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -73,16 +83,12 @@ func (ctrl *UserController) Update(ctx *gin.Context) {
 		LastName:  request.LastName,
 		Password:  request.Password,
 		Phone:     request.Phone,
+		Gender:    request.Gender,
 	}
 
-	id, err := utils.ParseUintParam(ctx, "id")
+	updatedUser, err := ctrl.service.Update(ctx.Request.Context(), id, &user)
 
 	if err != nil {
-		sendErrorResponse(ctx, opr, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if err := ctrl.service.Update(ctx.Request.Context(), &user, id); err != nil {
 		switch {
 		case errors.Is(err, utils.EmailAlreadyExists), errors.Is(err, utils.UsernameAlreadyExists):
 			sendErrorResponse(ctx, opr, http.StatusConflict, err.Error())
@@ -92,7 +98,7 @@ func (ctrl *UserController) Update(ctx *gin.Context) {
 		return
 	}
 
-	sendSuccessResponse(ctx, opr, http.StatusCreated, user)
+	sendSuccessResponse(ctx, opr, http.StatusOK, updatedUser)
 
 }
 

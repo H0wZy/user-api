@@ -8,6 +8,6 @@ const (
 	NotSpecified Gender = "Não especificado"
 )
 
-func GetValidGender() []Gender {
+func GetValidGenders() []Gender {
 	return []Gender{Male, Female, NotSpecified}
 }

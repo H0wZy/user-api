@@ -5,13 +5,27 @@ POST {{BASE_URL}}/user HTTP/1.1
 content-type: application/json
 
 {
-  "username": "user5",
-  "email": "user5@example.com",
+  "username": "user6",
+  "email": "user6@example.com",
   "first_name": "Teste",
-  "last_name": "User2",
+  "last_name": "User6",
   "password": "Teste@123.",
   "phone": "43999999999",
   "gender": ["male"]
+}
+
+### Update user by ID
+PUT {{BASE_URL}}/user?id=6 HTTP/1.1
+content-type: application/json
+
+{
+  "username": "user7",
+  "email": "user7@example.com",
+  "first_name": "Teste7",
+  "last_name": "User7",
+  "password": "Teste@123.",
+  "phone": "43777777777",
+  "gender": ["Masculino"]
 }
 
 ### Get user by ID

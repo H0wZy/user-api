@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/H0wZy/user-api/internal/types"
+	"github.com/H0wZy/user-api/internal/utils"
 )
 
 type CreateUserRequest struct {
@@ -24,21 +25,19 @@ type CreateUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Username  string `json:"username" binding:"required"`
-	Email     string `json:"email" binding:"required"`
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
-	Password  string `json:"password" binding:"required,min=8"`
-	Phone     string `json:"phone" binding:"required"`
+	Username  string         `json:"username" binding:"required"`
+	Email     string         `json:"email" binding:"required"`
+	FirstName string         `json:"first_name" binding:"required"`
+	LastName  string         `json:"last_name" binding:"required"`
+	Password  string         `json:"password" binding:"required,min=8"`
+	Phone     string         `json:"phone" binding:"required"`
+	Gender    []types.Gender `json:"gender" binding:"required"`
 }
 
-func (u UpdateUserRequest) ValidateGender() any {
-	panic("unimplemented")
+func (r *UpdateUserRequest) ValidateGender() error {
+	return utils.ValidateGender(r.Gender)
 }
 
-func (request *CreateUserRequest) ValidateGender() error {
-	if request.Gender == nil {
-		request.Gender = []types.Gender{types.NotSpecified}
-	}
-	return nil
+func (r *CreateUserRequest) ValidateGender() error {
+	return utils.ValidateGender(r.Gender)
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/H0wZy/user-api/internal/model"
 	"github.com/H0wZy/user-api/internal/repository"
 	"github.com/H0wZy/user-api/internal/utils"
+	"github.com/jinzhu/copier"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -97,8 +98,14 @@ func (s *userService) Update(ctx context.Context, id uint, input *model.User) (*
 		return nil, err
 	}
 
-	if strings.TrimSpace(input.FirstName) != "" {
-		user.FirstName = input.FirstName
+	copier.CopyWithOption(user, input, copier.Option{IgnoreEmpty: true, DeepCopy: true})
+
+	if strings.TrimSpace(input.Password) != "" {
+		hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
+		}
+		user.Password = string(hash)
 	}
 
 	if err := s.repo.Update(ctx, user); err != nil {
