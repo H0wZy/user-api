@@ -23,6 +23,19 @@ type CreateUserRequest struct {
 	// IsUserActive bool           `json:"is_user_active,omitempty"`
 }
 
+type UpdateUserRequest struct {
+	Username  string `json:"username" binding:"required"`
+	Email     string `json:"email" binding:"required"`
+	FirstName string `json:"first_name" binding:"required"`
+	LastName  string `json:"last_name" binding:"required"`
+	Password  string `json:"password" binding:"required,min=8"`
+	Phone     string `json:"phone" binding:"required"`
+}
+
+func (u UpdateUserRequest) ValidateGender() any {
+	panic("unimplemented")
+}
+
 func (request *CreateUserRequest) ValidateGender() error {
 	if request.Gender == nil {
 		request.Gender = []types.Gender{types.NotSpecified}

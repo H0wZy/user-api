@@ -56,6 +56,46 @@ func (ctrl *UserController) Create(ctx *gin.Context) {
 	sendSuccessResponse(ctx, "Create", http.StatusCreated, user)
 }
 
+func (ctrl *UserController) Update(ctx *gin.Context) {
+	const opr = "Update"
+
+	var request UpdateUserRequest
+
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		sendErrorResponse(ctx, opr, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	user := model.User{
+		Username:  request.Username,
+		Email:     request.Email,
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		Password:  request.Password,
+		Phone:     request.Phone,
+	}
+
+	id, err := utils.ParseUintParam(ctx, "id")
+
+	if err != nil {
+		sendErrorResponse(ctx, opr, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := ctrl.service.Update(ctx.Request.Context(), &user, id); err != nil {
+		switch {
+		case errors.Is(err, utils.EmailAlreadyExists), errors.Is(err, utils.UsernameAlreadyExists):
+			sendErrorResponse(ctx, opr, http.StatusConflict, err.Error())
+		default:
+			sendErrorResponse(ctx, opr, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	sendSuccessResponse(ctx, opr, http.StatusCreated, user)
+
+}
+
 func (ctrl *UserController) GetByID(ctx *gin.Context) {
 	const opr = "GetByID"
 
