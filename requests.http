@@ -11,7 +11,7 @@ content-type: application/json
   "last_name": "User6",
   "password": "Teste@123.",
   "phone": "43999999999",
-  "gender": ["male"]
+  "gender": ["Masculino"]
 }
 
 ### Update user by ID

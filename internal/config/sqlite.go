@@ -10,7 +10,12 @@ import (
 
 func InitSQLite() (*gorm.DB, error) {
 	logger := GetLogger("sqlite")
-	dbPath := "../../internal/db"
+	// dbPath := "../../internal/db"
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "./db"
+	}
+
 	dbFullPath := dbPath + "/user.db"
 
 	_, err := os.Stat(dbPath)

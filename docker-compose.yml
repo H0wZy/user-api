@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  user-db:
+    image: postgres:18-alpine
+    env_file:
+      - .env
+    container_name: user-db
+    ports:
+      - "${PGSQL_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${PGSQL_USER}
+      POSTGRES_PASSWORD: ${PGSQL_PASSWORD}
+      POSTGRES_DB: ${PGSQL_DB}
+    volumes:
+      - user-api-pgsql-data:/var/lib/postgresql/data
+    networks:
+      - user-api-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  user-api:
+    build: .
+    env_file:
+      - .env
+    container_name: user-api
+    environment:
+      DB_HOST: ${PGSQL_HOST}
+      DB_USER: ${PGSQL_USER}
+      DB_PASSWORD: ${PGSQL_PASSWORD}
+      DB_NAME: ${PGSQL_DB}
+      DB_PORT: ${PGSQL_PORT}
+      PORT: ${API_PORT}
+    depends_on:
+      user-db:
+        condition: service_healthy
+    networks:
+      - user-api-network
+    restart: unless-stopped
+
+volumes:
+  user-api-pgsql-data:
+    driver: local
+
+networks:
+  user-api-network:
+    driver: bridge
